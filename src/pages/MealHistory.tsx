@@ -114,20 +114,36 @@ export default function MealHistory() {
           className="ui-input"
         />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="ui-input"
-          >
-            <option value="">Todos los momentos</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <DateInput value={fromDate} onChange={setFromDate} allowClear />
-          <DateInput value={toDate} onChange={setToDate} allowClear />
+          <div className="min-w-0">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="ui-input"
+            >
+              <option value="">Todos los momentos</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="min-w-0">
+            <DateInput
+              value={fromDate}
+              onChange={setFromDate}
+              className="ui-input text-sm"
+              allowClear
+            />
+          </div>
+          <div className="min-w-0">
+            <DateInput
+              value={toDate}
+              onChange={setToDate}
+              className="ui-input text-sm"
+              allowClear
+            />
+          </div>
         </div>
       </div>
 

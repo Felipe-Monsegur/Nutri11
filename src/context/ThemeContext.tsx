@@ -17,14 +17,17 @@ interface ThemeContextType {
   updateHeaderTitle: (title: string) => Promise<void>;
 }
 
+const DEFAULT_HEADER_DARK = '#059669';
+const DEFAULT_HEADER_LIGHT = '#047857';
+
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'dark',
   toggleTheme: () => {},
-  headerColor: '#A80000',
+  headerColor: DEFAULT_HEADER_DARK,
   headerTitle: 'Nutri11',
-  loginBgColor: '#A80000',
-  headerColorDark: '#A80000',
-  headerColorLight: '#1e3a8a',
+  loginBgColor: DEFAULT_HEADER_DARK,
+  headerColorDark: DEFAULT_HEADER_DARK,
+  headerColorLight: DEFAULT_HEADER_LIGHT,
   updateHeaderColorDark: async () => {},
   updateHeaderColorLight: async () => {},
   updateHeaderTitle: async () => {},
@@ -45,15 +48,15 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [loading, setLoading] = useState(!!user); // Solo loading si hay usuario
-  const [headerColorDark, setHeaderColorDark] = useState<string>('#A80000');
-  const [headerColorLight, setHeaderColorLight] = useState<string>('#1e3a8a');
+  const [headerColorDark, setHeaderColorDark] = useState<string>(DEFAULT_HEADER_DARK);
+  const [headerColorLight, setHeaderColorLight] = useState<string>(DEFAULT_HEADER_LIGHT);
   const [headerTitle, setHeaderTitle] = useState<string>('Nutri11');
 
   // Color del header según el tema actual (calculado dinámicamente)
   const headerColor = theme === 'dark' ? headerColorDark : headerColorLight;
   
   // Colores según el tema
-  const loginBgColor = theme === 'dark' ? '#A80000' : '#1e3a8a';
+  const loginBgColor = headerColor;
 
   // Cargar tema y preferencias del usuario al iniciar sesión
   useEffect(() => {
@@ -77,12 +80,18 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
               }
             }
             
-            // Cargar colores del header personalizados
-            if (settings.headerColorDark) {
+            // Cargar colores del header (legacy → verde Nutri11)
+            const legacyDark = ['#A80000', '#a80000', '#15a013', '#15A013'];
+            const legacyLight = ['#1e3a8a', '#1E3A8A', '#15a013', '#15A013'];
+            if (settings.headerColorDark && !legacyDark.includes(settings.headerColorDark)) {
               setHeaderColorDark(settings.headerColorDark);
+            } else {
+              setHeaderColorDark(DEFAULT_HEADER_DARK);
             }
-            if (settings.headerColorLight) {
+            if (settings.headerColorLight && !legacyLight.includes(settings.headerColorLight)) {
               setHeaderColorLight(settings.headerColorLight);
+            } else {
+              setHeaderColorLight(DEFAULT_HEADER_LIGHT);
             }
             
             // Cargar título del header personalizado

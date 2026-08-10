@@ -166,19 +166,27 @@ export default function MealForm() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="form-group">
+            <div className="form-group mb-0 min-w-0">
               <label>Fecha</label>
-              <DateInput value={date} onChange={setDate} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="meal-time">Hora (opcional)</label>
-              <input
-                id="meal-time"
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="ui-input w-full"
+              <DateInput
+                value={date}
+                onChange={setDate}
+                className="ui-input"
+                required
+                allowClear={false}
               />
+            </div>
+            <div className="form-group mb-0 min-w-0">
+              <label htmlFor="meal-time">Hora (opcional)</label>
+              <div className="date-native-wrap">
+                <input
+                  id="meal-time"
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="ui-input"
+                />
+              </div>
             </div>
           </div>
 

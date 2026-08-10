@@ -98,7 +98,7 @@ export default function Layout({ children }: LayoutProps) {
               title="Ir al inicio"
             >
               <img
-                src="/logo.svg?v=10"
+                src="/logo.svg?v=13"
                 alt="Logo de Nutri11"
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shadow-md ring-1 ring-white/20"
               />

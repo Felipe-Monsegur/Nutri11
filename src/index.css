@@ -954,7 +954,8 @@ input[type='date']::-webkit-date-and-time-value {
 @supports (-webkit-touch-callout: none) {
   input[type='date'],
   input[type='month'],
-  input[type='datetime-local'] {
+  input[type='datetime-local'],
+  input[type='time'] {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
@@ -964,7 +965,9 @@ input[type='date']::-webkit-date-and-time-value {
   input[type='date']::-webkit-datetime-edit,
   input[type='date']::-webkit-datetime-edit-fields-wrapper,
   input[type='month']::-webkit-datetime-edit,
-  input[type='month']::-webkit-datetime-edit-fields-wrapper {
+  input[type='month']::-webkit-datetime-edit-fields-wrapper,
+  input[type='time']::-webkit-datetime-edit,
+  input[type='time']::-webkit-datetime-edit-fields-wrapper {
     max-width: 100%;
     overflow: hidden;
   }

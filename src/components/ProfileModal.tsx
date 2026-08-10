@@ -39,9 +39,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   };
 
   const presetColors = [
-    { name: 'Rojo', value: '#A80000' },
-    { name: 'Azul', value: '#1e3a8a' },
     { name: 'Verde', value: '#059669' },
+    { name: 'Verde vivo', value: '#15a013' },
+    { name: 'Azul', value: '#1e3a8a' },
+    { name: 'Rojo', value: '#A80000' },
     { name: 'Morado', value: '#7c3aed' },
     { name: 'Naranja', value: '#ea580c' },
     { name: 'Rosa', value: '#db2777' },
@@ -77,7 +78,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 value={colorDarkInput}
                 onChange={(e) => setColorDarkInput(e.target.value)}
                 className={`flex-1 px-2 py-1.5 rounded-lg text-xs sm:text-sm ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'} border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                placeholder="#A80000"
+                placeholder="#059669"
               />
             </div>
             
@@ -124,7 +125,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 value={colorLightInput}
                 onChange={(e) => setColorLightInput(e.target.value)}
                 className={`flex-1 px-2 py-1.5 rounded-lg text-xs sm:text-sm ${theme === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'} border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                placeholder="#1e3a8a"
+                placeholder="#059669"
               />
             </div>
             

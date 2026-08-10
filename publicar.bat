@@ -1,8 +1,8 @@
 @echo off
-REM Publicar Gym11 en Firebase Hosting (proyecto gym11-1111)
+REM Publicar Nutri11 en Firebase Hosting (proyecto nutri11)
 cd /d "%~dp0"
 echo ========================================
-echo   Publicar Gym11 en Firebase
+echo   Publicar Nutri11 en Firebase
 echo ========================================
 echo.
 
@@ -16,7 +16,7 @@ if %errorlevel% neq 0 (
 echo.
 
 echo Paso 2: Desplegando en Firebase Hosting...
-firebase deploy --only hosting --project gym11-1111
+firebase deploy --only hosting --project nutri11
 if %errorlevel% neq 0 (
     echo ERROR: El despliegue fallo
     echo Asegurate de haber ejecutado: firebase login
@@ -29,7 +29,7 @@ echo ========================================
 echo   Publicacion completada!
 echo ========================================
 echo.
-echo URL: https://gym11-1111.web.app
-echo GitHub: https://github.com/Felipe-Monsegur/Gym11
+echo URL: https://nutri11.web.app
+echo GitHub: https://github.com/Felipe-Monsegur/Nutri11
 echo.
 pause

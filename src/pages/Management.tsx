@@ -154,15 +154,18 @@ export default function Management() {
     });
   };
 
-  const moveCategory = async (index: number, dir: -1 | 1) => {
+  const moveCategory = async (id: string, direction: 'up' | 'down') => {
+    if (reordering || searchTerm.trim()) return;
     const ordered = sortByDisplayOrder(categories);
-    const next = index + dir;
+    const index = ordered.findIndex((c) => c.id === id);
+    if (index < 0) return;
+    const next = direction === 'up' ? index - 1 : index + 1;
     if (next < 0 || next >= ordered.length) return;
-    const ids = ordered.map((c) => c.id);
-    [ids[index], ids[next]] = [ids[next], ids[index]];
+    const swapped = [...ordered];
+    [swapped[index], swapped[next]] = [swapped[next], swapped[index]];
     setReordering(true);
     try {
-      await reorderMealCategories(ids);
+      await reorderMealCategories(swapped.map((c) => c.id));
       await refresh();
     } catch (err) {
       console.error(err);
@@ -178,7 +181,7 @@ export default function Management() {
       isOpen: true,
       title: 'Restaurar pack inicial',
       message:
-        'Se van a completar las 5 categorías base (Desayuno, Media mañana, Almuerzo, Merienda, Cena) si faltan. No borra las tuyas.',
+        'Se van a completar las 6 categorías base (Desayuno, Media mañana, Almuerzo, Merienda, Cena, Snack) si faltan. No borra las tuyas.',
       type: 'info',
       onConfirm: async () => {
         if (!user) return;
@@ -269,6 +272,9 @@ export default function Management() {
             className={`ui-label ui-label-md ui-tab inline-flex items-center gap-1.5 ${activeTab === 'categories' ? 'ui-tab-active' : ''}`}
             style={{ ['--tab-accent' as string]: headerColor }}
           >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z" />
+            </svg>
             Momentos
           </button>
           {isAdmin && (
@@ -277,6 +283,10 @@ export default function Management() {
               className={`ui-label ui-label-md ui-tab inline-flex items-center gap-1.5 ${activeTab === 'access' ? 'ui-tab-active' : ''}`}
               style={{ ['--tab-accent' as string]: headerColor }}
             >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24" aria-hidden>
+                <rect x="5" y="11" width="14" height="10" rx="2" />
+                <path strokeLinecap="round" d="M8 11V8a4 4 0 018 0v3" />
+              </svg>
               Acceso
             </button>
           )}
@@ -353,90 +363,129 @@ export default function Management() {
               </form>
             </Modal>
 
-            <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-              <input
-                type="search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar momento..."
-                className="ui-input sm:max-w-xs"
-              />
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={handleSeedPack}
-                  disabled={loadingPack}
-                  className="ui-list-item-btn px-3 py-2 text-sm"
-                >
-                  {loadingPack ? 'Restaurando…' : 'Restaurar pack'}
-                </button>
-                <button
-                  type="button"
-                  onClick={openCreate}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-medium"
-                  style={{ backgroundColor: headerColor }}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Nuevo
-                </button>
-              </div>
-            </div>
-
-            <div className="ui-panel p-3 sm:p-4 space-y-2">
-              {filtered.length === 0 ? (
-                <p className="text-center py-8 text-[var(--text-muted)]">
-                  {searchTerm ? 'No se encontraron momentos' : 'No hay categorías'}
-                </p>
-              ) : (
-                filtered.map((cat, index) => (
-                  <div
-                    key={cat.id}
-                    className="ui-list-item flex items-center gap-3 p-3"
+            <div className="ui-panel p-3 sm:p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 sm:mb-4">
+                <h2 className="ui-label ui-label-lg">Momentos</h2>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleSeedPack}
+                    disabled={loadingPack}
+                    className={`px-3 h-10 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
+                      theme === 'dark'
+                        ? 'bg-white/10 text-[var(--text)] hover:bg-white/15'
+                        : 'bg-black/5 text-[var(--text)] hover:bg-black/10'
+                    }`}
+                    title="Completa las categorías del pack que falten"
                   >
-                    <span
-                      className="w-3 h-3 rounded-full shrink-0"
-                      style={{ backgroundColor: cat.color }}
-                    />
-                    <div className="min-w-0 flex-1 font-medium text-[var(--text)]">{cat.name}</div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        disabled={reordering || Boolean(searchTerm) || index === 0}
-                        onClick={() => void moveCategory(index, -1)}
-                        className="ui-list-item-btn px-2 py-1 text-sm disabled:opacity-40"
-                        title="Subir"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        type="button"
-                        disabled={reordering || Boolean(searchTerm) || index === filtered.length - 1}
-                        onClick={() => void moveCategory(index, 1)}
-                        className="ui-list-item-btn px-2 py-1 text-sm disabled:opacity-40"
-                        title="Bajar"
-                      >
-                        ↓
-                      </button>
+                    {loadingPack ? 'Cargando…' : 'Restaurar pack'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openCreate}
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                    title="Nuevo momento"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar momento..."
+                  className="ui-input text-sm"
+                />
+                {!searchTerm.trim() && filtered.length > 1 && (
+                  <p className="text-xs mt-2 text-[var(--text-muted)]">
+                    ↑ ↓ define el orden en formularios y listas.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                {filtered.map((cat, idx) => (
+                  <div key={cat.id} className="ui-list-item flex items-center justify-between p-3">
+                    {!searchTerm.trim() && filtered.length > 1 && (
+                      <div className="flex flex-col gap-0.5 mr-2 pr-2 border-r shrink-0 border-[var(--border-strong)]">
+                        <button
+                          type="button"
+                          disabled={reordering || idx === 0}
+                          onClick={() => void moveCategory(cat.id, 'up')}
+                          className="ui-list-item-btn px-1.5 py-0.5 text-sm leading-none disabled:opacity-30"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          disabled={reordering || idx === filtered.length - 1}
+                          onClick={() => void moveCategory(cat.id, 'down')}
+                          className="ui-list-item-btn px-1.5 py-0.5 text-sm leading-none disabled:opacity-30"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div
+                        className="w-4 h-4 rounded flex-shrink-0"
+                        style={{ backgroundColor: cat.color }}
+                      />
+                      <span className="text-base text-[var(--text)] truncate">{cat.name}</span>
+                    </div>
+                    <div className="flex gap-1">
                       <button
                         type="button"
                         onClick={() => openEdit(cat)}
-                        className="ui-list-item-btn px-2.5 py-1.5 text-sm"
+                        className={`p-2 rounded transition-colors ${
+                          theme === 'dark'
+                            ? 'text-blue-400 hover:bg-blue-500/20'
+                            : 'text-blue-600 hover:bg-blue-100'
+                        }`}
+                        title="Editar"
                       >
-                        Editar
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDelete(cat)}
-                        className="ui-list-item-btn px-2.5 py-1.5 text-sm"
+                        className={`p-2 rounded transition-colors ${
+                          theme === 'dark'
+                            ? 'text-red-400 hover:bg-red-500/20'
+                            : 'text-red-600 hover:bg-red-100'
+                        }`}
+                        title="Eliminar"
                       >
-                        Borrar
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
                       </button>
                     </div>
                   </div>
-                ))
-              )}
+                ))}
+                {filtered.length === 0 && (
+                  <p className="text-center py-8 text-[var(--text-muted)]">
+                    {searchTerm ? 'No se encontraron momentos' : 'No hay categorías'}
+                  </p>
+                )}
+              </div>
             </div>
           </>
         )}

@@ -302,7 +302,8 @@ export const reorderMealCategories = async (orderedIds: string[]): Promise<void>
 };
 
 /**
- * Completa el pack de 5 momentos del día; evita carreras con ids fijos + mutex.
+ * Completa el pack de momentos del día; evita carreras con ids fijos + mutex.
+ * Idempotente: solo agrega categorías faltantes por nombre.
  */
 export const ensureInitialPack = async (userId: string): Promise<EnsureInitialPackResult> => {
   const inflight = ensurePackInflight.get(userId);

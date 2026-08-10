@@ -4,10 +4,10 @@ import {
   getMealCategories,
   getMealEntries,
   ensureInitialPack,
-  getUserSettings,
   saveUserSettings,
   INITIAL_PACK_VERSION,
 } from '../services/firebaseService';
+import { INITIAL_MEAL_CATEGORIES } from '../data/initialPack';
 import { MealCategory, MealEntry } from '../types';
 
 interface DataContextType {
@@ -26,6 +26,40 @@ const DataContext = createContext<DataContextType>({
 
 export const useData = () => useContext(DataContext);
 
+const PACK_MIN = INITIAL_MEAL_CATEGORIES.length;
+
+async function seedPackWithRetry(userId: string): Promise<MealCategory[]> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      // Siempre idempotente: completa lo que falte (cuenta nueva o pack actualizado).
+      await ensureInitialPack(userId);
+      const cats = await getMealCategories(userId);
+      if (cats.length >= PACK_MIN) {
+        await saveUserSettings(userId, { initialPackVersion: INITIAL_PACK_VERSION });
+        return cats;
+      }
+      // Primera sesión: a veces las rules/auth aún no alcanzaron; reintentar.
+      await new Promise((r) => setTimeout(r, 350 * (attempt + 1)));
+    } catch (err) {
+      lastError = err;
+      console.error('Error ensuring initial pack:', err);
+      await new Promise((r) => setTimeout(r, 350 * (attempt + 1)));
+    }
+  }
+
+  if (lastError) {
+    console.error('Pack seed failed after retries:', lastError);
+  }
+
+  try {
+    return await getMealCategories(userId);
+  } catch {
+    return [];
+  }
+}
+
 export const DataProvider = ({ children }: { children: ReactNode }) => {
   const { user, isAllowed, checkingAccess, loading: authLoading } = useAuth();
   const [categories, setCategories] = useState<MealCategory[]>([]);
@@ -42,45 +76,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     setLoading(true);
     try {
-      try {
-        const settings = await getUserSettings(user.uid).catch(() => null);
-        const packVersion = settings?.initialPackVersion ?? 0;
-        if (packVersion < INITIAL_PACK_VERSION) {
-          await ensureInitialPack(user.uid);
-          await saveUserSettings(user.uid, { initialPackVersion: INITIAL_PACK_VERSION });
-        } else {
-          const current = await getMealCategories(user.uid);
-          if (current.length === 0) {
-            await ensureInitialPack(user.uid);
-          }
-        }
-      } catch (err) {
-        console.error('Error ensuring initial pack:', err);
-      }
-
       const [cats, entries] = await Promise.all([
-        getMealCategories(user.uid).catch((err) => {
-          console.error('Error loading mealCategories:', err);
-          return [] as MealCategory[];
-        }),
+        seedPackWithRetry(user.uid),
         getMealEntries(user.uid).catch((err) => {
           console.error('Error loading mealEntries:', err);
           return [] as MealEntry[];
         }),
       ]);
-
-      if (cats.length === 0) {
-        try {
-          await ensureInitialPack(user.uid);
-          await saveUserSettings(user.uid, { initialPackVersion: INITIAL_PACK_VERSION });
-          const retryCats = await getMealCategories(user.uid);
-          setCategories(retryCats);
-          setMeals(entries);
-          return;
-        } catch (err) {
-          console.error('Error retrying initial pack:', err);
-        }
-      }
 
       setCategories(cats);
       setMeals(entries);

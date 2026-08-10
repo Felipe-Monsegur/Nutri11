@@ -27,7 +27,7 @@ export default function InfoPage() {
           <ol className="list-decimal list-inside space-y-2 text-[var(--text-muted)] text-sm">
             <li>
               <strong className="text-[var(--text)]">Pack inicial</strong> — Al entrar tenés Desayuno,
-              Media mañana, Almuerzo, Merienda y Cena
+              Media mañana, Almuerzo, Merienda, Cena y Snack
             </li>
             <li>
               <strong className="text-[var(--text)]">Anotar</strong> — Tocá Anotar, elegí el momento y

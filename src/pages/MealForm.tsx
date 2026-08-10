@@ -112,7 +112,7 @@ export default function MealForm() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 max-w-xl">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className={`text-xl sm:text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
           {isEdit ? 'Editar comida' : 'Anotar comida'}
@@ -122,81 +122,83 @@ export default function MealForm() {
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="ui-panel p-4 sm:p-6 space-y-4">
-        <div className="form-group">
-          <label>Momento</label>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => {
-              const active = categoryId === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategoryId(cat.id)}
-                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                    active
-                      ? 'text-white border-transparent'
-                      : 'text-[var(--text)] border-[var(--border-strong)] bg-[var(--surface-2)]'
-                  }`}
-                  style={active ? { backgroundColor: cat.color } : undefined}
-                >
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: active ? '#fff' : cat.color }}
-                  />
-                  {cat.name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="meal-description">Qué comiste</label>
-          <textarea
-            id="meal-description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="ui-input min-h-[100px]"
-            placeholder="Ej: café con leche, tostadas con palta..."
-            required
-            autoFocus={!isEdit}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <div className="ui-panel p-4 sm:p-6 space-y-4 sm:space-y-5">
           <div className="form-group">
-            <label>Fecha</label>
-            <DateInput value={date} onChange={setDate} required />
+            <label>Momento</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => {
+                const active = categoryId === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategoryId(cat.id)}
+                    className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+                      active
+                        ? 'text-white border-transparent'
+                        : 'text-[var(--text)] border-[var(--border-strong)] bg-[var(--surface-2)]'
+                    }`}
+                    style={active ? { backgroundColor: cat.color } : undefined}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: active ? '#fff' : cat.color }}
+                    />
+                    {cat.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
+
           <div className="form-group">
-            <label htmlFor="meal-time">Hora (opcional)</label>
-            <input
-              id="meal-time"
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="ui-input"
+            <label htmlFor="meal-description">Qué comiste</label>
+            <textarea
+              id="meal-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="ui-input min-h-[160px] sm:min-h-[200px] w-full"
+              placeholder="Ej: café con leche, tostadas con palta..."
+              required
+              autoFocus={!isEdit}
             />
           </div>
-        </div>
 
-        <div className="form-group">
-          <label htmlFor="meal-notes">Notas (opcional)</label>
-          <input
-            id="meal-notes"
-            type="text"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="ui-input"
-            placeholder="Algo más para recordar..."
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="form-group">
+              <label>Fecha</label>
+              <DateInput value={date} onChange={setDate} required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="meal-time">Hora (opcional)</label>
+              <input
+                id="meal-time"
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="ui-input w-full"
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="meal-notes">Notas (opcional)</label>
+            <input
+              id="meal-notes"
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="ui-input w-full"
+              placeholder="Algo más para recordar..."
+            />
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={saving}
-          className="ui-btn-submit w-full text-white py-3 disabled:opacity-50"
+          className="ui-btn-submit w-full text-white py-3 sm:py-3.5 disabled:opacity-50"
           style={{ backgroundColor: headerColor }}
         >
           {saving ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Anotar'}

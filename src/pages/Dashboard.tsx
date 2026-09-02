@@ -1,25 +1,34 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useTheme } from '../context/ThemeContext';
+import MealCalendar from '../components/MealCalendar';
 import { daysSinceLastMeal, todayMeals, weekMeals } from '../utils/mealStats';
+import { getTodayDateString } from '../utils/date';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export default function Dashboard() {
   const { meals, categories, loading } = useData();
   const { theme, headerColor } = useTheme();
+  const [selectedDate, setSelectedDate] = useState(() => getTodayDateString());
 
   const thisWeek = useMemo(() => weekMeals(meals), [meals]);
   const today = useMemo(() => todayMeals(meals), [meals]);
   const daysSince = useMemo(() => daysSinceLastMeal(meals), [meals]);
   const last5 = useMemo(() => meals.slice(0, 5), [meals]);
+  const todayKey = getTodayDateString();
+  const selectedMeals = useMemo(
+    () => meals.filter((m) => m.date === selectedDate),
+    [meals, selectedDate]
+  );
+  const isSelectedToday = selectedDate === todayKey;
 
   const getCategory = (categoryId: string) => categories.find((c) => c.id === categoryId);
 
   const formatDateLabel = (date: string) => {
     try {
-      return format(parseISO(date), "EEE d MMM", { locale: es });
+      return format(parseISO(date), 'EEE d MMM', { locale: es });
     } catch {
       return date;
     }
@@ -89,14 +98,28 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <MealCalendar
+        meals={meals}
+        categories={categories}
+        selectedDate={selectedDate}
+        onSelectDate={setSelectedDate}
+        headerColor={headerColor}
+      />
+
       <div className="ui-panel p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="ui-label ui-label-lg">Hoy</h2>
+          <h2 className="ui-label ui-label-lg capitalize">
+            {isSelectedToday ? 'Hoy' : formatDateLabel(selectedDate)}
+          </h2>
         </div>
 
-        {today.length === 0 ? (
+        {selectedMeals.length === 0 ? (
           <div className="text-center py-6">
-            <div className="text-[var(--text-muted)] mb-4">Todavía no anotaste nada hoy</div>
+            <div className="text-[var(--text-muted)] mb-4">
+              {isSelectedToday
+                ? 'Todavía no anotaste nada hoy'
+                : 'No hay comidas este día'}
+            </div>
             <Link
               to="/comidas/nueva"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90"
@@ -110,7 +133,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {today.map((meal) => {
+            {selectedMeals.map((meal) => {
               const cat = getCategory(meal.categoryId);
               return (
                 <Link
